@@ -11,7 +11,7 @@ const CalendarHeaderGrid = styled.div`
   display: grid;
   margin-bottom: 8px;
   color: white;
-  background-color: green;
+  background-color: #6565f1;
   ${CalendarGridColumnsCss}
 `;
 

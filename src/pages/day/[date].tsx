@@ -27,6 +27,10 @@ const Header = styled.div`
   font-size: 24px;
 `;
 
+const BackIcon = styled.span`
+  cursor: pointer;
+`;
+
 const DayLabel = styled.div`
   display: flex;
   flex: none;
@@ -156,7 +160,7 @@ export default function Day() {
     <>
       <DayStyled>
         <Header>
-          <span onClick={() => Router.back()}>{"<-"}</span>
+          <BackIcon onClick={() => Router.back()}>{"<-"}</BackIcon>
           <DayLabel>{date}</DayLabel>
         </Header>
         <DayGrid>
