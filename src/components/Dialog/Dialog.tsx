@@ -48,8 +48,8 @@ interface DialogProps {
 
 export const Dialog = ({ title, children, onClose, buttons }: DialogProps) => {
   return (
-    <DialogOverlay onClick={onClose}>
-      <DialogContainer onClick={(e) => e.stopPropagation()}>
+    <DialogOverlay onMouseDown={onClose}>
+      <DialogContainer onMouseDown={(e) => e.stopPropagation()}>
         <DialogHeader>
           <span>{title}</span>
           <CloseIcon onClick={onClose}>X</CloseIcon>

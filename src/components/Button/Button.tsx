@@ -9,16 +9,31 @@ const ButtonPrimary = css`
   }
 `;
 
-const ButtonSecondary = css`
+type ButtonStyleProps = Pick<ButtonProps, "variant" | "color">;
+
+const ButtonSecondary = css<ButtonStyleProps>`
   background-color: white;
-  color: green;
+
+  ${({ color = "primary" }) => {
+    switch (color) {
+      case "primary":
+        return css`
+          color: green;
+        `;
+      case "error":
+        return css`
+          color: red;
+          border-color: red;
+        `;
+    }
+  }}
 
   &:hover {
-    background-color: #ececec;
+    filter: brightness(0.9);
   }
 `;
 
-const ButtonStyled = styled.button<Pick<ButtonProps, "variant">>`
+const ButtonStyled = styled.button<ButtonStyleProps>`
   cursor: pointer;
   border: 1px solid green;
   padding: 8px;
@@ -32,15 +47,17 @@ interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
   variant: "primary" | "secondary";
+  color?: "primary" | "error";
 }
 
 export const Button = ({
   children,
   onClick,
   variant = "primary",
+  color = "primary",
 }: ButtonProps) => {
   return (
-    <ButtonStyled onClick={onClick} variant={variant}>
+    <ButtonStyled color={color} onClick={onClick} variant={variant}>
       {children}
     </ButtonStyled>
   );

@@ -10,6 +10,7 @@ export const pillsRepo = {
     getPills().filter((pill) => pill.startDate === date),
   create,
   update,
+  remove,
 };
 
 function create(data: Omit<Pill, "id" | "created" | "updated">) {
@@ -38,6 +39,17 @@ function update(id: Pill["id"], data: Partial<Omit<Pill, "id">>) {
       updated: new Date().toISOString(),
     };
     pills[pillIndex] = updatedPill;
+    savePills(pills);
+    return updatedPill;
+  }
+}
+
+function remove(id: Pill["id"]) {
+  const pills = getPills();
+  const pillIndex = pills.findIndex((x) => x.id === id);
+
+  if (pillIndex > -1) {
+    pills.splice(pillIndex, 1);
     savePills(pills);
   }
 }

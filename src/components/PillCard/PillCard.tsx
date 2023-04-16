@@ -1,24 +1,42 @@
-import { CSSProperties } from "styled-components";
+import styled, { CSSProperties } from "styled-components";
+
+const PillStyled = styled.div`
+  cursor: pointer;
+  &:hover {
+    filter: brightness(1.5);
+  }
+`;
 
 interface PillCardProps {
   id: number;
   name: string;
   quantity: number;
   color?: CSSProperties["color"];
+  onClick: (id: number) => void;
 }
 
-export const PillCard = ({ id, name, quantity, color }: PillCardProps) => {
+export const PillCard = ({
+  id,
+  name,
+  quantity,
+  color,
+  onClick,
+}: PillCardProps) => {
   const pillColor = color || colorBasedOnName(name);
   return (
-    <div
+    <PillStyled
       style={{
         padding: "8px",
         backgroundColor: pillColor,
         color: textColorBasedOnBackgroundColor(pillColor),
       }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick(id);
+      }}
     >
       {name} ({quantity})
-    </div>
+    </PillStyled>
   );
 };
 

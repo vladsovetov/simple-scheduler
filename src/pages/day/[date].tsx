@@ -4,7 +4,7 @@ import { Field } from "@/components/Field/Field";
 import { Input } from "@/components/Input/Input";
 import { PillCard } from "@/components/PillCard/PillCard";
 import { Pill } from "@/types";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CirclePicker } from "react-color";
@@ -18,13 +18,18 @@ const DayStyled = styled.div`
   overflow: hidden;
 `;
 
+const Header = styled.div`
+  display: grid;
+  grid-template-columns: 30px 1fr 30px;
+  background-color: #6565f1;
+  padding: 16px;
+  color: white;
+  font-size: 24px;
+`;
+
 const DayLabel = styled.div`
   display: flex;
   flex: none;
-  padding: 16px;
-  font-size: 24px;
-  color: white;
-  background-color: green;
   justify-content: center;
 `;
 
@@ -60,24 +65,43 @@ const DayCurrentTime = styled.div`
 `;
 
 const PillsContainer = styled.div`
-  /* display: flex; */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
 const HourLabel = styled.div`
-  /* background-color: #f5f3f3; */
-  color: green;
+  background-color: #6565f1;
+  color: white;
   padding: 8px;
+  align-self: center;
+  border-radius: 50%;
+  color: white;
+  width: 42px;
+  text-align: center;
+`;
+
+const SelectedColorContainer = styled.div`
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+  flex-direction: row;
+`;
+
+const SelectedColor = styled.span`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
 `;
 
 type DialogProps = {
   open: boolean;
   title: string;
-  startTime: number;
 };
 
 export default function Day() {
   const [dialogProps, setDialogProps] = useState<DialogProps | null>(null);
-  const [newPill, setNewPill] = useState<Partial<Pill>>({});
+  const [pillData, setPillData] = useState<Partial<Pill>>({});
   const [pills, setPills] = useState<Pill[]>([]);
   const router = useRouter();
   const { date } = router.query;
@@ -96,13 +120,27 @@ export default function Day() {
     if (!dialogProps) return;
 
     const pill: Partial<Pill> = {
-      ...newPill,
+      ...pillData,
       startDate: String(date),
-      startTime: `${dialogProps.startTime.toString().padStart(2, "0")}:00`,
+      startTime: pillData.startTime,
     };
-    await fetch("/api/pills/create", {
+    const URL = pill.id ? "/api/pills/update" : "/api/pills/create";
+    await fetch(URL, {
       method: "POST",
       body: JSON.stringify(pill),
+    });
+    setDialogProps(null);
+    fetchPills();
+  };
+
+  const handleDelete = async () => {
+    if (!dialogProps) return;
+
+    await fetch("/api/pills/remove", {
+      method: "POST",
+      body: JSON.stringify({
+        id: pillData.id,
+      }),
     });
     setDialogProps(null);
     fetchPills();
@@ -117,25 +155,28 @@ export default function Day() {
   return (
     <>
       <DayStyled>
-        <DayLabel>{date}</DayLabel>
+        <Header>
+          <span onClick={() => Router.back()}>{"<-"}</span>
+          <DayLabel>{date}</DayLabel>
+        </Header>
         <DayGrid>
           {hours.map((hour) => {
+            const hourFormatted = `${hour.toString().padStart(2, "0")}:00`;
             const currHourPills = pills.filter(
-              (pill) =>
-                pill.startTime === `${hour.toString().padStart(2, "0")}:00`
+              (pill) => pill.startTime === hourFormatted
             );
             return (
               <DayCell
                 key={hour}
-                onClick={() =>
+                onClick={() => {
                   setDialogProps({
                     open: true,
-                    title: `Add new pill at ${hour}:00`,
-                    startTime: hour,
-                  })
-                }
+                    title: `Add new pill at ${hourFormatted}`,
+                  });
+                  setPillData({ startTime: hourFormatted });
+                }}
               >
-                <HourLabel>{hour}</HourLabel>
+                <HourLabel>{hourFormatted}</HourLabel>
                 <PillsContainer>
                   {currHourPills.map((pill) => (
                     <PillCard
@@ -144,6 +185,13 @@ export default function Day() {
                       name={pill.name}
                       quantity={pill.quantity}
                       color={pill.color}
+                      onClick={() => {
+                        setDialogProps({
+                          open: true,
+                          title: `Edit the ${pill.name} pill at ${hourFormatted}`,
+                        });
+                        setPillData(pill);
+                      }}
                     />
                   ))}
                 </PillsContainer>
@@ -161,6 +209,15 @@ export default function Day() {
               <Button variant="secondary" onClick={() => setDialogProps(null)}>
                 Cancel
               </Button>
+              {!!pillData.id && (
+                <Button
+                  variant="secondary"
+                  color="error"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </Button>
+              )}
               <Button variant="primary" onClick={handleSave}>
                 Save
               </Button>
@@ -170,33 +227,41 @@ export default function Day() {
         >
           <Field label="Name">
             <Input
+              defaultValue={pillData.name}
               onChange={(value) =>
-                setNewPill((prev) => ({ ...prev, name: value }))
+                setPillData((prev) => ({ ...prev, name: value }))
               }
             />
           </Field>
           <Field label="Quantity">
             <Input
+              defaultValue={pillData.quantity}
               onChange={(value) =>
-                setNewPill((prev) => ({
+                setPillData((prev) => ({
                   ...prev,
                   quantity: parseInt(value, 10),
                 }))
               }
+              type="number"
             />
           </Field>
           <Field label="How many days?">
             <Input
+              defaultValue={pillData.duration}
               onChange={(value) =>
-                setNewPill((prev) => ({ ...prev, duration: parseInt(value) }))
+                setPillData((prev) => ({ ...prev, duration: parseInt(value) }))
               }
               type="number"
             />
           </Field>
           <Field label="Color">
+            <SelectedColorContainer>
+              <span>Current color:</span>
+              <SelectedColor style={{ backgroundColor: pillData.color }} />
+            </SelectedColorContainer>
             <CirclePicker
               onChange={(color) =>
-                setNewPill((prev) => ({ ...prev, color: color.hex }))
+                setPillData((prev) => ({ ...prev, color: color.hex }))
               }
             />
           </Field>
