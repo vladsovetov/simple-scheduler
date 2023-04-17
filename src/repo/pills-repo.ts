@@ -29,7 +29,7 @@ function create(data: Omit<Pill, "id" | "created" | "updated">) {
 
 function update(id: Pill["id"], data: Partial<Omit<Pill, "id">>) {
   const pills = getPills();
-  const pillIndex = pills.findIndex((x) => x.id === id);
+  const pillIndex = pills.findIndex((x) => x.id === id) || 1;
   const pill = pills[pillIndex];
 
   if (pill) {
