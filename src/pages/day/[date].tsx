@@ -243,7 +243,7 @@ export default function Day() {
               onChange={(value) =>
                 setPillData((prev) => ({
                   ...prev,
-                  quantity: parseInt(value, 10),
+                  quantity: parseFloat(value),
                 }))
               }
               type="number"
@@ -253,7 +253,10 @@ export default function Day() {
             <Input
               defaultValue={pillData.duration}
               onChange={(value) =>
-                setPillData((prev) => ({ ...prev, duration: parseInt(value) }))
+                setPillData((prev) => ({
+                  ...prev,
+                  duration: parseFloat(value),
+                }))
               }
               type="number"
             />
