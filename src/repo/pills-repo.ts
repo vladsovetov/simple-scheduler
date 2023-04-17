@@ -14,7 +14,7 @@ export const pillsRepo = {
 
 function create(data: Omit<Pill, "id" | "created" | "updated">) {
   const pills = getPills();
-  const maxId = Math.max(...pills.map((x) => x.id));
+  const maxId = Math.max(...pills.map((x) => x.id)) || 1;
   const newPill = {
     created: new Date().toISOString(),
     updated: new Date().toISOString(),
@@ -29,7 +29,7 @@ function create(data: Omit<Pill, "id" | "created" | "updated">) {
 
 function update(id: Pill["id"], data: Partial<Omit<Pill, "id">>) {
   const pills = getPills();
-  const pillIndex = pills.findIndex((x) => x.id === id) || 1;
+  const pillIndex = pills.findIndex((x) => x.id === id);
   const pill = pills[pillIndex];
 
   if (pill) {
