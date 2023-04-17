@@ -107,12 +107,13 @@ export default function Day() {
   const [dialogProps, setDialogProps] = useState<DialogProps | null>(null);
   const [pillData, setPillData] = useState<Partial<Pill>>({});
   const [pills, setPills] = useState<Pill[]>([]);
+  const [currHourPosition, setCurrHourPosition] = useState<number>();
   const router = useRouter();
   const { date } = router.query;
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  const nowDate = new Date();
-  const nowMinute = nowDate.getMinutes();
-  const nowHour = (nowDate.getHours() + nowMinute / 60) * DAY_CELL_MIN_HEIGHT;
+  // const nowDate = new Date();
+  // const nowMinute = nowDate.getMinutes();
+  // const nowHour = (nowDate.getHours() + nowMinute / 60) * DAY_CELL_MIN_HEIGHT;
 
   useEffect(() => {
     if (date) {
@@ -120,7 +121,9 @@ export default function Day() {
     }
   }, [date]);
 
-  const handleSave = async () => {
+  useEffect(() => {}, [pills]);
+
+  const handleSave = async (pillData: Partial<Pill>) => {
     if (!dialogProps) return;
 
     const pill: Partial<Pill> = {
@@ -202,7 +205,9 @@ export default function Day() {
               </DayCell>
             );
           })}
-          {/* <DayCurrentTime style={{ top: `${nowHour}px` }} /> */}
+          {!!currHourPosition && (
+            <DayCurrentTime style={{ top: `${currHourPosition}px` }} />
+          )}
         </DayGrid>
       </DayStyled>
       {dialogProps && (
@@ -214,15 +219,24 @@ export default function Day() {
                 Cancel
               </Button>
               {!!pillData.id && (
-                <Button
-                  variant="secondary"
-                  color="error"
-                  onClick={handleDelete}
-                >
-                  Delete
-                </Button>
+                <>
+                  <Button
+                    variant="secondary"
+                    color="error"
+                    onClick={handleDelete}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    color="error"
+                    onClick={() => handleSave({ ...pillData, duration: 0 })}
+                  >
+                    Stop this day
+                  </Button>
+                </>
               )}
-              <Button variant="primary" onClick={handleSave}>
+              <Button variant="primary" onClick={() => handleSave(pillData)}>
                 Save
               </Button>
             </>

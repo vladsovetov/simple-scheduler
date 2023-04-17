@@ -38,10 +38,11 @@ function update(id: Pill["id"], data: Partial<Omit<Pill, "id">>) {
       ...data,
       updated: new Date().toISOString(),
     };
-    if (pill.startDate === data.startDate) {
+    if (pill.quantity === data.quantity) {
       updatedPill = {
         ...pill,
         ...data,
+        startDate: pill.startDate, // do not update start date
         updated: new Date().toISOString(),
       };
     } else if (data.startDate) {
@@ -57,12 +58,15 @@ function update(id: Pill["id"], data: Partial<Omit<Pill, "id">>) {
         updated: new Date().toISOString(),
       };
       // create new pill preserve old attributes for previous pill
-      pills.push(
-        create({
-          ...pill,
-          ...data,
-        })
-      );
+      // only if there is any duration
+      if (data.duration) {
+        pills.push(
+          create({
+            ...pill,
+            ...data,
+          })
+        );
+      }
     }
 
     pills[pillIndex] = updatedPill;
