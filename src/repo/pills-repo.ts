@@ -14,7 +14,7 @@ export const pillsRepo = {
 
 function create(data: Omit<Pill, "id" | "created" | "updated">) {
   const pills = getPills();
-  const maxId = Math.max(...pills.map((x) => x.id)) || 1;
+  const maxId = pills.length ? Math.max(...pills.map((x) => x.id)) : 0;
   const newPill = {
     created: new Date().toISOString(),
     updated: new Date().toISOString(),
