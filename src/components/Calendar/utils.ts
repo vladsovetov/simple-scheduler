@@ -8,7 +8,8 @@ export const getCalendarCells = (
   const lastDayOfMonth = new Date(year, month + 1, 0);
 
   const nowDate = new Date();
-  for (let day = 1; day < lastDayOfMonth.getDate(); day++) {
+  const lastDate = lastDayOfMonth.getDate();
+  for (let day = 1; day <= lastDate; day++) {
     const currDate = new Date(year, month, day);
     const dayOfWeek = currDate.getDay();
     cells.push({
