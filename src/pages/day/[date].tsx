@@ -8,7 +8,7 @@ import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CirclePicker } from "react-color";
-import { formatTime, getHourFromTime } from "./utils";
+import { formatTime, getHourFromTime } from "../../utils/utils";
 
 const DAY_CELL_MIN_HEIGHT = 50;
 
