@@ -4,8 +4,7 @@ const fs = require("fs");
 
 export const pillsRepo = {
   getAll: () => getPills(),
-  getById: (id: number) =>
-    getPills().find((pill) => pill.id.toString() === id.toString()),
+  getById,
   getByDate,
   create,
   update,
@@ -101,6 +100,19 @@ function addDays(date: Date, days: number) {
   return result;
 }
 
+function getById(id: Pill["id"]) {
+  const pills = getPills();
+  const pill = pills.find((pill) => pill.id === id);
+  if (!pill) return {};
+  const similarPills = pills.filter(
+    (currPill) => getMatchPercentage(pill.name, currPill.name) > 0.5
+  );
+  return {
+    pill,
+    similarPills,
+  };
+}
+
 function savePills(pills: Pill[]) {
   fs.writeFileSync("./data/pills.json", JSON.stringify(pills, null, 4));
 }
@@ -110,4 +122,20 @@ function getPills(): Pill[] {
     fs.writeFileSync("./data/pills.json", "[]");
   }
   return JSON.parse(fs.readFileSync("./data/pills.json", "utf8"));
+}
+
+// compare 2 names and get match in percentage
+function getMatchPercentage(name1: string, name2: string) {
+  const name1Arr = name1.split("");
+  const name2Arr = name2.split("");
+  let matchedCharsNumbers = 0;
+  for (const name1Char of name1Arr) {
+    for (const name2Char of name2Arr) {
+      if (name1Char === name2Char) {
+        matchedCharsNumbers += 1;
+        break;
+      }
+    }
+  }
+  return matchedCharsNumbers / name1Arr.length;
 }
