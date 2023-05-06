@@ -8,6 +8,7 @@ import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CirclePicker } from "react-color";
+import { formatTime, getHourFromTime } from "./utils";
 
 const DAY_CELL_MIN_HEIGHT = 50;
 
@@ -168,7 +169,7 @@ export default function Day() {
         </Header>
         <DayGrid>
           {hours.map((hour) => {
-            const hourFormatted = `${hour.toString().padStart(2, "0")}:00`;
+            const hourFormatted = formatTime(hour);
             const currHourPills = pills.filter(
               (pill) => pill.startTime === hourFormatted
             );
@@ -270,6 +271,20 @@ export default function Day() {
                 setPillData((prev) => ({
                   ...prev,
                   duration: parseFloat(value),
+                }))
+              }
+              type="number"
+            />
+          </Field>
+          <Field label="Hour">
+            <Input
+              defaultValue={
+                pillData.startTime ? getHourFromTime(pillData.startTime) : 0
+              }
+              onChange={(value) =>
+                setPillData((prev) => ({
+                  ...prev,
+                  startTime: formatTime(parseInt(value, 10)),
                 }))
               }
               type="number"
