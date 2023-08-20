@@ -45,7 +45,7 @@ const ButtonStyled = styled.button<ButtonStyleProps>`
 
 interface ButtonProps {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   variant: "primary" | "secondary";
   color?: "primary" | "error";
   type?: "button" | "submit";

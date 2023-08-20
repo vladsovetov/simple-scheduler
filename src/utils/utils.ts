@@ -2,6 +2,10 @@ export const formatTime = (hour: number): string => {
   return hour < 10 ? `0${hour}:00` : `${hour}:00`;
 };
 
+export const formatDate = (date: Date): string => {
+  return date.toISOString().split("T")[0];
+};
+
 export const getHourFromTime = (time: string): number => {
   const timeArr = time.split(":");
   return timeArr ? parseInt(timeArr[0]) : 0;

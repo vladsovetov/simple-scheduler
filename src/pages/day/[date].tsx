@@ -1,9 +1,10 @@
-import { Pill } from "@/types";
+import { Behavior, Pill } from "@/types";
 import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { formatTime } from "../../utils/utils";
 import { PillsContainer } from "@/components/Pills/PillsContainer/PillsContainer";
+import { BehaviorsContainer } from "@/components/Behaviors/BehaviorsContainer/BehaviorsContainer";
 
 const DAY_CELL_MIN_HEIGHT = 50;
 
@@ -69,15 +70,18 @@ const HourLabel = styled.div`
 
 export default function Day() {
   const [pills, setPills] = useState<Pill[]>([]);
+  const [behaviors, setBehaviors] = useState<Behavior[]>([]);
   const router = useRouter();
-  const date = String(
-    Array.isArray(router.query.date) ? router.query.date[0] : router.query.date
-  );
+  const date = Array.isArray(router.query.date)
+    ? router.query.date[0]
+    : router.query.date;
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   useEffect(() => {
     if (date) {
+      console.log("date", date);
       fetchPills();
+      fetchBehaviors();
     }
   }, [date]);
 
@@ -87,6 +91,12 @@ export default function Day() {
     const res = await fetch(`/api/pills/get/${date}`);
     const pills = await res.json();
     setPills(pills);
+  };
+
+  const fetchBehaviors = async () => {
+    const res = await fetch(`/api/behaviors/get/${date}`);
+    const behaviors = await res.json();
+    setBehaviors(behaviors);
   };
 
   return (
@@ -102,16 +112,27 @@ export default function Day() {
             const currHourPills = pills.filter(
               (pill) => pill.startTime === hourFormatted
             );
+            const currHourBehaviors = behaviors.filter(
+              (behavior) => behavior.startTime === hourFormatted
+            );
             return (
-              <DayCell key={hour}>
-                <HourLabel>{hourFormatted}</HourLabel>
-                <PillsContainer
-                  date={date}
-                  pills={currHourPills}
-                  hourFormatted={hourFormatted}
-                  onUpdate={fetchPills}
-                />
-              </DayCell>
+              date && (
+                <DayCell key={hour}>
+                  <HourLabel>{hourFormatted}</HourLabel>
+                  <PillsContainer
+                    date={date}
+                    pills={currHourPills}
+                    hourFormatted={hourFormatted}
+                    onUpdate={fetchPills}
+                  />
+                  <BehaviorsContainer
+                    behaviors={currHourBehaviors}
+                    date={date}
+                    hourFormatted={hourFormatted}
+                    onUpdate={fetchBehaviors}
+                  />
+                </DayCell>
+              )
             );
           })}
         </DayGrid>

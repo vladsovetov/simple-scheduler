@@ -117,8 +117,10 @@ function savePills(pills: Pill[]) {
   fs.writeFileSync("./data/pills.json", JSON.stringify(pills, null, 4));
 }
 function getPills(): Pill[] {
-  if (!fs.existsSync("./data/pills.json")) {
+  if (!fs.existsSync("./data")) {
     fs.mkdirSync("./data");
+  }
+  if (!fs.existsSync("./data/pills.json")) {
     fs.writeFileSync("./data/pills.json", "[]");
   }
   return JSON.parse(fs.readFileSync("./data/pills.json", "utf8"));

@@ -24,6 +24,7 @@ const DialogContainer = styled.div`
 
 const DialogHeader = styled.div`
   display: flex;
+  flex: 0;
   justify-content: space-between;
   padding: 16px 0;
 `;
@@ -33,10 +34,17 @@ const CloseIcon = styled.span`
   font-family: system-ui;
 `;
 
+const DialogBody = styled.div`
+  flex: 1;
+  max-height: 60vh;
+  overflow: auto;
+`;
+
 const DialogFooter = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 16px 0;
+  flex: 0;
 `;
 
 interface DialogProps {
@@ -54,7 +62,7 @@ export const Dialog = ({ title, children, onClose, buttons }: DialogProps) => {
           <span>{title}</span>
           <CloseIcon onClick={onClose}>X</CloseIcon>
         </DialogHeader>
-        {children}
+        <DialogBody>{children}</DialogBody>
         <DialogFooter>{buttons}</DialogFooter>
       </DialogContainer>
     </DialogOverlay>

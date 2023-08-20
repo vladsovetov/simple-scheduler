@@ -78,12 +78,7 @@ export const PillDialog = ({
               </Button>
             </>
           )}
-          <Button
-            variant="primary"
-            type="submit"
-            onClick={() => onSave(pillData)}
-            form="pill-form"
-          >
+          <Button variant="primary" type="submit" form="pill-form">
             Save
           </Button>
         </>

@@ -16,3 +16,26 @@ export interface Pill {
   updated: string;
   color: string;
 }
+
+export interface Behavior {
+  id: number;
+  created: string;
+  updated: string;
+  startTime: string;
+  types: BehaviorType[];
+}
+
+export enum BehaviorTypeEnum {
+  mood = "mood",
+  sleep = "sleep",
+  appetite = "appetite",
+  dailyActivity = "dailyActivity",
+  tiredness = "tiredness",
+  fatigue = "fatigue",
+  apathy = "apathy",
+  badThoughts = "badThoughts",
+}
+export interface BehaviorType {
+  id: BehaviorTypeEnum;
+  level: number;
+}
