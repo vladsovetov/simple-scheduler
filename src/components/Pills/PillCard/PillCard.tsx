@@ -1,7 +1,10 @@
 import styled, { CSSProperties } from "styled-components";
 
-const PillStyled = styled.div`
+const PillStyled = styled.button`
   cursor: pointer;
+  border-radius: 9999px;
+  border: none;
+  padding: 16px;
   &:hover {
     filter: brightness(1.5);
   }
@@ -26,7 +29,6 @@ export const PillCard = ({
   return (
     <PillStyled
       style={{
-        padding: "8px",
         backgroundColor: pillColor,
         color: textColorBasedOnBackgroundColor(pillColor),
       }}

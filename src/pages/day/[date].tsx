@@ -1,18 +1,9 @@
-import { Button } from "@/components/Button/Button";
-import { Dialog } from "@/components/Dialog/Dialog";
-import { Field } from "@/components/Field/Field";
-import { Input } from "@/components/Input/Input";
-import { PillCard } from "@/components/PillCard/PillCard";
 import { Pill } from "@/types";
 import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { CirclePicker } from "react-color";
-import {
-  diffInDaysBetweenDays,
-  formatTime,
-  getHourFromTime,
-} from "../../utils/utils";
+import { formatTime } from "../../utils/utils";
+import { PillsContainer } from "@/components/Pills/PillsContainer/PillsContainer";
 
 const DAY_CELL_MIN_HEIGHT = 50;
 
@@ -45,8 +36,6 @@ const DayLabel = styled.div`
 const DayGrid = styled.div`
   position: relative;
   flex: 1;
-  /* display: flex;
-  flex-direction: column; */
   overflow: auto;
 `;
 
@@ -67,18 +56,6 @@ const DayCell = styled.div`
   }
 `;
 
-const DayCurrentTime = styled.div`
-  position: absolute;
-  width: 100%;
-  border-bottom: 4px solid blue;
-`;
-
-const PillsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
 const HourLabel = styled.div`
   background-color: #6565f1;
   color: white;
@@ -90,35 +67,13 @@ const HourLabel = styled.div`
   text-align: center;
 `;
 
-const SelectedColorContainer = styled.div`
-  font-size: 14px;
-  display: flex;
-  gap: 8px;
-  flex-direction: row;
-`;
-
-const SelectedColor = styled.span`
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-`;
-
-type DialogProps = {
-  open: boolean;
-  title: string;
-};
-
 export default function Day() {
-  const [dialogProps, setDialogProps] = useState<DialogProps | null>(null);
-  const [pillData, setPillData] = useState<Partial<Pill>>({});
   const [pills, setPills] = useState<Pill[]>([]);
-  const [currHourPosition, setCurrHourPosition] = useState<number>();
   const router = useRouter();
-  const { date } = router.query;
+  const date = String(
+    Array.isArray(router.query.date) ? router.query.date[0] : router.query.date
+  );
   const hours = Array.from({ length: 24 }, (_, i) => i);
-  // const nowDate = new Date();
-  // const nowMinute = nowDate.getMinutes();
-  // const nowHour = (nowDate.getHours() + nowMinute / 60) * DAY_CELL_MIN_HEIGHT;
 
   useEffect(() => {
     if (date) {
@@ -127,36 +82,6 @@ export default function Day() {
   }, [date]);
 
   useEffect(() => {}, [pills]);
-
-  const handleSave = async (pillData: Partial<Pill>) => {
-    if (!dialogProps) return;
-
-    const pill: Partial<Pill> = {
-      ...pillData,
-      startDate: String(date),
-      startTime: pillData.startTime,
-    };
-    const URL = pill.id ? "/api/pills/update" : "/api/pills/create";
-    await fetch(URL, {
-      method: "POST",
-      body: JSON.stringify(pill),
-    });
-    setDialogProps(null);
-    fetchPills();
-  };
-
-  const handleDelete = async () => {
-    if (!dialogProps) return;
-
-    await fetch("/api/pills/remove", {
-      method: "POST",
-      body: JSON.stringify({
-        id: pillData.id,
-      }),
-    });
-    setDialogProps(null);
-    fetchPills();
-  };
 
   const fetchPills = async () => {
     const res = await fetch(`/api/pills/get/${date}`);
@@ -178,150 +103,19 @@ export default function Day() {
               (pill) => pill.startTime === hourFormatted
             );
             return (
-              <DayCell
-                key={hour}
-                onClick={() => {
-                  setDialogProps({
-                    open: true,
-                    title: `Add new pill at ${hourFormatted}`,
-                  });
-                  setPillData({ startTime: hourFormatted });
-                }}
-              >
+              <DayCell key={hour}>
                 <HourLabel>{hourFormatted}</HourLabel>
-                <PillsContainer>
-                  {currHourPills.map((pill) => (
-                    <PillCard
-                      key={pill.id}
-                      id={pill.id}
-                      name={pill.name}
-                      quantity={pill.quantity}
-                      color={pill.color}
-                      onClick={() => {
-                        setDialogProps({
-                          open: true,
-                          title: `Edit the ${pill.name} pill at ${hourFormatted}`,
-                        });
-                        setPillData(pill);
-                      }}
-                    />
-                  ))}
-                </PillsContainer>
+                <PillsContainer
+                  date={date}
+                  pills={currHourPills}
+                  hourFormatted={hourFormatted}
+                  onUpdate={fetchPills}
+                />
               </DayCell>
             );
           })}
-          {!!currHourPosition && (
-            <DayCurrentTime style={{ top: `${currHourPosition}px` }} />
-          )}
         </DayGrid>
       </DayStyled>
-      {dialogProps && (
-        <Dialog
-          title={dialogProps.title}
-          buttons={
-            <>
-              <Button variant="secondary" onClick={() => setDialogProps(null)}>
-                Cancel
-              </Button>
-              {!!pillData.id && (
-                <>
-                  <Button
-                    variant="secondary"
-                    color="error"
-                    onClick={handleDelete}
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    color="error"
-                    onClick={() => {
-                      if (pillData.startDate && typeof date === "string") {
-                        handleSave({
-                          ...pillData,
-                          duration: diffInDaysBetweenDays(
-                            new Date(date),
-                            new Date(pillData.startDate)
-                          ),
-                        });
-                      }
-                    }}
-                  >
-                    Stop this day
-                  </Button>
-                </>
-              )}
-              <Button variant="primary" onClick={() => handleSave(pillData)}>
-                Save
-              </Button>
-            </>
-          }
-          onClose={() => setDialogProps(null)}
-        >
-          {!!pillData.startDate && (
-            <span>
-              Started at: {new Date(pillData.startDate).toLocaleString()}
-            </span>
-          )}
-          <Field label="Name">
-            <Input
-              defaultValue={pillData.name}
-              onChange={(value) =>
-                setPillData((prev) => ({ ...prev, name: value }))
-              }
-            />
-          </Field>
-          <Field label="Quantity">
-            <Input
-              defaultValue={pillData.quantity}
-              onChange={(value) =>
-                setPillData((prev) => ({
-                  ...prev,
-                  quantity: parseFloat(value),
-                }))
-              }
-              type="number"
-            />
-          </Field>
-          <Field label="How many days?">
-            <Input
-              defaultValue={pillData.duration}
-              onChange={(value) =>
-                setPillData((prev) => ({
-                  ...prev,
-                  duration: parseFloat(value),
-                }))
-              }
-              type="number"
-            />
-          </Field>
-          <Field label="Hour">
-            <Input
-              defaultValue={
-                pillData.startTime ? getHourFromTime(pillData.startTime) : 0
-              }
-              onChange={(value) =>
-                setPillData((prev) => ({
-                  ...prev,
-                  startTime: formatTime(parseInt(value, 10)),
-                }))
-              }
-              type="number"
-            />
-          </Field>
-          <Field label="Color">
-            <SelectedColorContainer>
-              <span>Current color:</span>
-              <SelectedColor style={{ backgroundColor: pillData.color }} />
-            </SelectedColorContainer>
-            <CirclePicker
-              onChange={(color) =>
-                setPillData((prev) => ({ ...prev, color: color.hex }))
-              }
-            />
-          </Field>
-        </Dialog>
-      )}
     </>
   );
 }

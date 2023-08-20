@@ -11,6 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <main className={roboto.className}>
         <Component {...pageProps} />
       </main>
+      <div id="portal"></div>
     </NoSSR>
   );
 }

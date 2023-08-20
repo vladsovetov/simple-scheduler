@@ -48,6 +48,8 @@ interface ButtonProps {
   onClick: () => void;
   variant: "primary" | "secondary";
   color?: "primary" | "error";
+  type?: "button" | "submit";
+  form?: string;
 }
 
 export const Button = ({
@@ -55,9 +57,17 @@ export const Button = ({
   onClick,
   variant = "primary",
   color = "primary",
+  type = "button",
+  form,
 }: ButtonProps) => {
   return (
-    <ButtonStyled color={color} onClick={onClick} variant={variant}>
+    <ButtonStyled
+      color={color}
+      onClick={onClick}
+      variant={variant}
+      type={type}
+      form={form}
+    >
       {children}
     </ButtonStyled>
   );
