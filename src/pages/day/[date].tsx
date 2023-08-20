@@ -8,7 +8,11 @@ import Router, { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { CirclePicker } from "react-color";
-import { formatTime, getHourFromTime } from "../../utils/utils";
+import {
+  diffInDaysBetweenDays,
+  formatTime,
+  getHourFromTime,
+} from "../../utils/utils";
 
 const DAY_CELL_MIN_HEIGHT = 50;
 
@@ -231,7 +235,17 @@ export default function Day() {
                   <Button
                     variant="secondary"
                     color="error"
-                    onClick={() => handleSave({ ...pillData, duration: 0 })}
+                    onClick={() => {
+                      if (pillData.startDate && typeof date === "string") {
+                        handleSave({
+                          ...pillData,
+                          duration: diffInDaysBetweenDays(
+                            new Date(date),
+                            new Date(pillData.startDate)
+                          ),
+                        });
+                      }
+                    }}
                   >
                     Stop this day
                   </Button>
@@ -244,6 +258,11 @@ export default function Day() {
           }
           onClose={() => setDialogProps(null)}
         >
+          {!!pillData.startDate && (
+            <span>
+              Started at: {new Date(pillData.startDate).toLocaleString()}
+            </span>
+          )}
           <Field label="Name">
             <Input
               defaultValue={pillData.name}
