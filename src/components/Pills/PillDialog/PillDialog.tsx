@@ -112,7 +112,6 @@ export const PillDialog = ({
                 quantity: parseFloat(value),
               }))
             }
-            type="number"
           />
         </Field>
         <Field label="How many days?">
